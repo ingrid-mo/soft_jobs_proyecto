@@ -1,13 +1,10 @@
 const express = require('express');
 const app = express();
 const cors = require('cors');
-const { getEventos, deleteEvento, verificarCredenciales } = require('./consultas');
-
+const { getUsuarios, deleteUsuarios, verificarCredenciales, createUser } = require('./consultas');
 const jwt = require("jsonwebtoken");
 
-
-
-const token = jwt.sign(payload, llaveSecreta);
+const llaveSecreta = "mi_llave_secreta"; 
 
 app.listen(3000, () => {
     console.log("SERVER ON");
@@ -16,42 +13,52 @@ app.listen(3000, () => {
 app.use(cors());
 app.use(express.json());
 
-app.get("/eventos", async (req, res) => {
+app.get("/usuarios", async (req, res) => {
     try {
-        const eventos = await getEventos();
-        res.json(eventos);
+        const usuarios = await getUsuarios();
+        res.json(usuarios);
     } catch (error) {
         res.status(error.code || 500).send(error);
     }
 });
-
 
 app.post("/login", async (req, res) => {
     try {
-        const { email, password, rol, lenguaje } = req.body;
-        await verificarCredenciales(email, password , rol, lenguaje);
-        const payload = { email }; 
-        const llaveSecreta = "mi_llave_secreta"; 
+        const { email, password } = req.body;
+        await verificarCredenciales(email, password);
+        const payload = { email };
         const token = jwt.sign(payload, llaveSecreta);
         res.send(token);
     } catch (error) {
-        console.log(error);
+        console.error(error);
         res.status(error.code || 500).send(error);
     }
 });
-app.delete("/eventos/:id", async (req, res) => {
-    try {
-    const { id } = req.params
-    const Authorization = req.header("Authorization")
-     token = Authorization.split("Bearer ")[1]
-    jwt.verify(token, "az_AZ")
-const { email } = jwt.decode(token)
-await deleteEvento(id)
-res.send(`El usuario ${email} ha eliminado el evento de id ${id}`)
 
-    console.log(token)
+app.delete("/usuario/:id", async (req, res) => {
+    try {
+        const { id } = req.params;
+        const Authorization = req.header("Authorization");
+        const token = Authorization.split("Bearer ")[1];
+        jwt.verify(token, llaveSecreta); 
+        const { email } = jwt.decode(token);
+        await deleteUsuarios(id);
+        res.send(`El usuario ${email} ha eliminado el usuario de id ${id}`);
     } catch (error) {
-    res.status(error.code || 500).send(error)
+        console.error(error);
+        res.status(error.code || 500).send(error);
     }
-    })
-    
+});
+
+app.post('/registrarse', async (req, res) => {
+    try {
+        const { nombre, apellido, email, password } = req.body; 
+        await createUser({ nombre, apellido, email, password }); 
+        const payload = { email };
+        const token = jwt.sign(payload, llaveSecreta);
+        res.send(token);
+    } catch (error) {
+        console.error(error);
+        res.status(error.code || 500).send(error);
+    }
+});
