@@ -39,4 +39,4 @@ const createUser = async ({ nombre, apellido, email, password }) => {
     return response.rows[0];
 };
 
-module.exports = { getUsuarios, deleteUsuarios, verificarCredenciales, createUser };S
+module.exports = { getUsuarios, deleteUsuarios, verificarCredenciales, createUser };

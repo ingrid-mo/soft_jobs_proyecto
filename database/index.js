@@ -4,11 +4,9 @@ const cors = require('cors');
 const { getEventos, deleteEvento, verificarCredenciales } = require('./consultas');
 
 const jwt = require("jsonwebtoken");
-const payload = {
-    usuarioId: 123,
-    nombreUsuario: "ejemploUsuario"
-};
-const llaveSecreta = "mi_llave_secreta";
+
+
+
 const token = jwt.sign(payload, llaveSecreta);
 
 app.listen(3000, () => {
